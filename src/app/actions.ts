@@ -1,17 +1,13 @@
-import { PrismaClient } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { addTodo } from "../services/TodoService";
 
-export const prisma = new PrismaClient();
-
-export const addTodo = async (formData: FormData) => {
+export const createTodo = async (formData: FormData) => {
   "use server";
-  console.log(formData);
   const data = {
     title: formData.get("title")?.toString() ?? "",
-    description: formData.get("description")?.toString(),
+    description: formData.get("description")?.toString() ?? "",
   };
-  console.log(data);
-  const todo = await prisma.todo.create({ data });
-  console.log("todo added");
+  await addTodo(data);
+
   revalidatePath("/");
 };

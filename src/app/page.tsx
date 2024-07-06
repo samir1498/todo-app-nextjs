@@ -1,16 +1,15 @@
-import { addTodo, prisma } from "./actions";
+import { getTodos } from "@/services/TodoService";
+import { createTodo } from "./actions";
+
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const todos = await prisma.todo.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
-  });
+  const todos = await getTodos();
 
   return (
     <div className="p-4 flex h-screen flex-col justify-center items-center">
       <h1 className="text-3xl font-bold mb-4">Todos</h1>
-      <form action={addTodo} className="mb-4">
+      <form action={createTodo} className="mb-4">
         <input
           id="title"
           name="title"
