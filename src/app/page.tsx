@@ -1,78 +1,29 @@
-// pages/index.tsx
-"use client";
-import { useState, useEffect } from "react";
+import { addTodo, prisma } from "./actions";
 
-type Todo = {
-  id: number;
-  title: string;
-  description: string;
-  completed: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-export default function Home() {
-  const [todos, setTodos] = useState<Todo[]>([]);
-  const [newTodo, setNewTodo] = useState({ title: "", description: "" });
-
-  const fetchTodos = async () => {
-    try {
-      const response = await fetch("/api"); // Replace with your API route path
-      if (!response.ok) {
-        throw new Error("Failed to fetch todos");
-      }
-      const data = await response.json();
-      setTodos(data.todos);
-    } catch (error) {
-      console.error("Error fetching todos:", error);
-      // Handle error as needed
-    }
-  };
-  useEffect(() => {
-    fetchTodos();
-  }, []);
-
-  const handleAddTodo = async (event: React.FormEvent) => {
-    event.preventDefault();
-    try {
-      const response = await fetch("/api", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newTodo),
-      });
-      if (!response.ok) {
-        throw new Error("Failed to add todo");
-      }
-      const data = await response.json();
-      setTodos((prev) => [data.todo, ...prev]);
-      setNewTodo({ title: "", description: "" });
-    } catch (error) {
-      console.error("Error adding todo:", error);
-      // Handle error as needed
-    }
-  };
+export default async function Home() {
+  const todos = await prisma.todo.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
 
   return (
     <div className="p-4 flex h-screen flex-col justify-center items-center">
       <h1 className="text-3xl font-bold mb-4">Todos</h1>
-      <form onSubmit={handleAddTodo} className="mb-4">
+      <form action={addTodo} className="mb-4">
         <input
+          id="title"
+          name="title"
           type="text"
           placeholder="Title"
           className="p-2 border border-gray-300 mr-2 text-black"
-          value={newTodo.title}
-          onChange={(e) => setNewTodo({ ...newTodo, title: e.target.value })}
         />
         <input
+          id="description"
+          name="description"
           type="text"
           placeholder="Description"
           className="p-2 border border-gray-300 mr-2 text-black"
-          value={newTodo.description}
-          onChange={(e) =>
-            setNewTodo({ ...newTodo, description: e.target.value })
-          }
         />
         <button
           type="submit"
